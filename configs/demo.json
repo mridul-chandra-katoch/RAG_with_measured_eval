@@ -1,0 +1,8 @@
+{
+  "name": "demo",
+  "source_folder": "data",
+  "max_tokens": 400,
+  "overlap_tokens": 50,
+  "top_k": 20,
+  "abstain_threshold": 0.05
+}

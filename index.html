@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html><head><title>ragkit-lite</title></head>
+<body style="font-family:sans-serif;max-width:720px;margin:2rem auto">
+<h1>ragkit-lite</h1>
+
+<!-- NEW: Upload Section -->
+<div style="background:#eef; padding:1rem; border-radius:5px; margin-bottom:1rem;">
+  <h3 style="margin-top:0">Upload a new document (.txt or .md)</h3>
+    <input type="file" id="fileInput" accept=".txt,.md,.pdf">
+  <button onclick="uploadFile()" style="padding:0.3rem 1rem;">Upload & Index</button>
+  <span id="uploadStatus" style="margin-left:1rem; font-weight:bold; color:#060;"></span>
+</div>
+
+<!-- Question Section -->
+<textarea id="q" rows="3" style="width:100%;font-size:1rem" placeholder="Ask a question..."></textarea>
+<button onclick="ask()" style="padding:0.5rem 1rem;margin-top:0.5rem">Ask</button>
+<pre id="out" style="white-space:pre-wrap;background:#f4f4f4;padding:1rem;margin-top:1rem"></pre>
+
+<script>
+async function uploadFile() {
+  const fileInput = document.getElementById("fileInput");
+  const status = document.getElementById("uploadStatus");
+  if (!fileInput.files.length) {
+    status.style.color = "red";
+    status.textContent = "Please select a file first.";
+    return;
+  }
+  
+  const file = fileInput.files[0];
+  status.style.color = "blue";
+  status.textContent = "Uploading and indexing...";
+  
+  try {
+    const r = await fetch("/upload", {
+      method: "POST",
+      headers: {"X-Filename": file.name, "Content-Type": "text/plain"},
+      body: file
+    });
+    const d = await r.json();
+    status.style.color = "green";
+    status.textContent = d.message;
+  } catch (e) {
+    status.style.color = "red";
+    status.textContent = "Error: " + e.message;
+  }
+}
+
+async function ask() {
+  const q = document.getElementById("q").value;
+  try {
+    const r = await fetch("/ask", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({question: q})
+    });
+    const d = await r.json();
+    let s = "[" + d.tool + "] " + d.answer + "<br>";
+    
+    if (d.citations && d.citations.length > 0) {
+      s += "<br>Abstained: " + d.abstained + "<br>";
+      s += "Confidence: " + d.confidence.toFixed(3) + "<br><br>";
+      s += "Citations:<br>";
+      for (const c of d.citations) {
+        s += "  - " + c.file + " p" + c.page + ": " + c.quote + "...<br>";
+      }
+    }
+    document.getElementById("out").innerHTML = s;
+  } catch (e) {
+    document.getElementById("out").innerHTML = "Error: " + e.message;
+  }
+}
+</script></body></html>

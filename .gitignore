@@ -1,0 +1,18 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environments
+.venv/
+venv/
+env/
+
+# User data and uploads (keep the folder, ignore the contents)
+data/*
+!data/test.md
+!data/.gitkeep
+
+# OS generated files
+.DS_Store
+Thumbs.db
