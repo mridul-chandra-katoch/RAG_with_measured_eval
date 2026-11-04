@@ -16,3 +16,7 @@ data/*
 # OS generated files
 .DS_Store
 Thumbs.db
+
+datasets/squad/train-v2.0.json
+datasets/squad/*.json
+results/cache/*
