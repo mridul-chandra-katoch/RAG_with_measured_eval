@@ -1,11 +1,15 @@
 import json
 import os
+import secrets
 from pathlib import Path
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from ragkit.agent import run_agent
 from ragkit.cli import build_pipeline
 from ragkit.config import Config
 from ragkit.chunk import chunk_documents
+
+# Generate a random 8-character token every time the server starts
+SERVER_UPLOAD_TOKEN = secrets.token_hex(4)
 
 class Handler(BaseHTTPRequestHandler):
     pipeline = None
@@ -29,22 +33,25 @@ class Handler(BaseHTTPRequestHandler):
         length = int(self.headers.get("Content-Length", 0))
         
         if self.path == "/upload":
+            # SECURITY FIX: Require the upload token
+            if self.headers.get("X-Upload-Token") != SERVER_UPLOAD_TOKEN:
+                self.send_response(401)
+                self.end_headers()
+                self.wfile.write(b"Unauthorized: Missing or invalid upload token.")
+                return
+
             filename = self.headers.get("X-Filename", "uploaded.txt")
-            # Read as raw bytes, NOT text
             body = self.rfile.read(length)
             
             os.makedirs("data", exist_ok=True)
             safe_name = "".join(c for c in filename if c.isalnum() or c in "._- ")
             filepath = os.path.join("data", safe_name)
             
-            # Write as binary (wb) to prevent corruption of PDFs
             with open(filepath, "wb") as f:
                 f.write(body)
                 
-            # Rebuild the index
             Handler.pipeline = build_pipeline(Handler.config_path)
             
-            # Count chunks
             cfg = Config.load(Handler.config_path)
             all_chunks = chunk_documents(Path("data"), cfg.max_tokens, cfg.overlap_tokens)
             file_chunks = [c for c in all_chunks if c.source["file"] == safe_name]
@@ -92,6 +99,8 @@ class Handler(BaseHTTPRequestHandler):
 
 def serve(pipeline, port=8000):
     Handler.pipeline = pipeline
-    server = ThreadingHTTPServer(("0.0.0.0", port), Handler)
-    print("Serving on http://127.0.0.1:" + str(port))
+    # SECURITY FIX: Bind to 127.0.0.1 to prevent external network access
+    server = ThreadingHTTPServer(("127.0.0.1", port), Handler)
+    print(f"Serving on http://127.0.0.1:{port}")
+    print(f"UPLOAD TOKEN: {SERVER_UPLOAD_TOKEN} (You must enter this in the UI to upload files)")
     server.serve_forever()

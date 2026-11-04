@@ -5,7 +5,7 @@
 - seed: `42`
 - max_articles (N): `150`
 - lr: `0.1`
-- max epochs: `200`
+- max epochs: `500`
 - batch_size: `0` (0 = full batch)
 - log_every: `10`
 - top_k: `20`
@@ -41,30 +41,30 @@
 
 | L2 | Best calibration log-loss | Best epoch |
 |---|---:|---:|
-| 0 | 0.4149 | 200 |
-| 0.0001 | 0.4150 | 200 |
-| 0.001 | 0.4151 | 200 |
-| 0.01 | 0.4167 | 200 |
-| 0.1 | 0.4466 | 200 |
-| 1 | 0.5737 | 200 |
+| 0 | 0.4021 | 500 |
+| 0.0001 | 0.4021 | 500 |
+| 0.001 | 0.4020 | 500 |
+| 0.01 | 0.4033 | 500 |
+| 0.1 | 0.4439 | 500 |
+| 1 | 0.5737 | 250 |
 
-**Selected**: L2=`0`, epochs=`200`, calibration log-loss=`0.4149`
+**Selected**: L2=`0.001`, epochs=`500`, calibration log-loss=`0.4020`
 
 ## Learned weights (standardized features)
 
 | Feature | Weight |
 |---|---:|
-| f1 | 0.0497 |
-| f2 | -0.0952 |
-| f3 | 1.0931 |
-| f4 | 0.7609 |
-| f5a | 0.0901 |
-| f5b | 0.0495 |
-| f6 | -0.5095 |
-| f7 | 0.7123 |
-| bias | 0.6169 |
+| f1 | -0.0030 |
+| f2 | -0.0741 |
+| f3 | 1.7350 |
+| f4 | 0.7388 |
+| f5a | 0.0406 |
+| f5b | -0.0011 |
+| f6 | -0.7472 |
+| f7 | 0.6730 |
+| bias | 0.8593 |
 
-Platt: `a = 1.4141`, `b = 0.7564`
+Platt: `a = 1.3262`, `b = 0.9124`
 
 ## Baseline
 
@@ -76,13 +76,13 @@ Platt: `a = 1.4141`, `b = 0.7564`
 
 | Method | Accuracy [95% CI] | AUROC [95% CI] | ECE | Brier |
 |---|---|---|---:|---:|
-| Learned (Platt >= 0.5) | 0.8059 [0.7678, 0.8411] | 0.8820 [0.8494, 0.9117] | 0.0241 | 0.1349 |
+| Learned (Platt >= 0.5) | 0.8168 [0.7787, 0.8526] | 0.8936 [0.8621, 0.9227] | 0.0215 | 0.1276 |
 | Baseline (tuned) | 0.7291 [0.6916, 0.7666] | 0.8107 [0.7568, 0.8604] | 0.0549 | 0.1720 |
 | Baseline (t=0.05, frozen) | 0.6352 [0.4838, 0.8017] | 0.8107 [0.7568, 0.8604] | 0.0549 | 0.1720 |
 
 Note: AUROC, Brier and ECE are identical for the two baseline rows because they depend only on the score (f4) and its Platt fit, not on the threshold.
 
-**AUROC difference (learned - baseline):** [0.0466, 0.0954] (bootstrap resamples skipped: 0)
+**AUROC difference (learned - baseline):** [0.0574, 0.1067] (bootstrap resamples skipped: 0)
 
 - CI excludes 0: **YES**
 
@@ -91,26 +91,26 @@ Note: AUROC, Brier and ECE are identical for the two baseline rows because they 
 | Target coverage | Learned (realized cov / precision) | Baseline (realized cov / precision) |
 |---|---|---|
 | 0.2000 | 0.2001 / 0.9914 | 0.2001 / 0.9320 |
-| 0.4000 | 0.4000 / 0.9495 | 0.4000 / 0.8795 |
-| 0.6000 | 0.6001 / 0.8651 | 0.6001 / 0.8138 |
-| 0.8000 | 0.8001 / 0.7504 | 0.8001 / 0.7339 |
+| 0.4000 | 0.4000 / 0.9584 | 0.4000 / 0.8795 |
+| 0.6000 | 0.6001 / 0.8739 | 0.6001 / 0.8138 |
+| 0.8000 | 0.8001 / 0.7559 | 0.8001 / 0.7339 |
 | 1.0000 | 1.0000 / 0.6352 | 1.0000 / 0.6352 |
 
 ## Feature ablation (test, primary)
 
-Full-model AUROC: `0.8820`
+Full-model AUROC: `0.8936`
 
 ### Drop one feature group (full - ablated)
 
 | Group | Ablated AUROC | Drop (full - ablated) |
 |---|---:|---:|
-| f1 | 0.8820 | 0.0000 |
-| f2 | 0.8821 | -0.0000 |
-| f3 | 0.8418 | 0.0402 |
-| f4 | 0.8813 | 0.0007 |
-| f5 | 0.8829 | -0.0008 |
-| f6 | 0.8733 | 0.0087 |
-| f7 | 0.8768 | 0.0053 |
+| f1 | 0.8936 | 0.0000 |
+| f2 | 0.8938 | -0.0002 |
+| f3 | 0.8432 | 0.0505 |
+| f4 | 0.8983 | -0.0047 |
+| f5 | 0.8938 | -0.0001 |
+| f6 | 0.8778 | 0.0158 |
+| f7 | 0.8914 | 0.0022 |
 
 ### Single-feature-only models (trained on one group)
 
@@ -128,17 +128,17 @@ Full-model AUROC: `0.8820`
 
 ### Variant A — primary-trained model + primary-frozen baseline, on secondary test
 
-- Learned AUROC: `0.5506` [0.5006, 0.6022] (skipped: 0)
-- Learned accuracy: `0.5960`
+- Learned AUROC: `0.5510` [0.5013, 0.6031] (skipped: 0)
+- Learned accuracy: `0.5971`
 - Baseline AUROC (score = f4): `0.5633`
 - Baseline accuracy at primary-tuned t=`0.208614`: `0.5751`
 - Test set: n=7893, n+=4810, n-=3083
 
 ### Variant B — secondary-trained model + secondary-tuned baseline, on secondary test
 
-- Selected L2=`0.01`, epochs=`120`
-- Learned AUROC: `0.5638` [0.5164, 0.6144] (skipped: 0)
-- Learned accuracy: `0.6094`
+- Selected L2=`0.01`, epochs=`500`
+- Learned AUROC: `0.5651` [0.5213, 0.6121] (skipped: 0)
+- Learned accuracy: `0.6086`
 - Baseline AUROC (score = f4): `0.5633`
 - Baseline accuracy at secondary-tuned t=`0.079686`: `0.6093`
 - Test set: n=7893, n+=4810, n-=3083
@@ -147,13 +147,13 @@ Full-model AUROC: `0.8820`
 
 ### Evaluation null check (both train and test labels shuffled)
 
-- n=20 shuffles; mean AUROC = `0.4998`, std = `0.0049`
+- n=20 shuffles; mean AUROC = `0.4995`, std = `0.0051`
 - WARNING fired: **NO**
 - Interpretation: this checks metric/label alignment, not feature leakage.
 
 ### Feature leakage diagnostic (train labels shuffled, test labels real)
 
-- n=20 shuffles; mean = `0.4758`, std = `0.1444`, min = `0.2193`, max = `0.7366`
+- n=20 shuffles; mean = `0.4787`, std = `0.1368`, min = `0.2253`, max = `0.7275`
 - Diagnostic only, never pass/fail: AUROC is scale-invariant, so a random weight direction can still align with the real test signal.
 
 ## Raw feature means per partition (pre-standardization)
@@ -166,9 +166,9 @@ Full-model AUROC: `0.8820`
 
 ## Runtime
 
-- Retrieval (feature extraction + cache): `769.0s`
-- Training + evaluation + report: `502.7s`
-- Total: `1271.7s`
+- Retrieval (feature extraction + cache): `0.5s`
+- Training + evaluation + report: `1132.6s`
+- Total: `1133.1s`
 
 ## Interpretation (mechanical only)
 

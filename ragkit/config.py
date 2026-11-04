@@ -11,6 +11,7 @@ class Config:
     overlap_tokens: int = 50
     top_k: int = 20
     abstain_threshold: float = 0.05
+    abstain_mode: str = "learned"  # "threshold" or "learned"
 
     @classmethod
     def load(cls, path):

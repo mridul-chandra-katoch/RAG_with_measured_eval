@@ -3,10 +3,11 @@
 <body style="font-family:sans-serif;max-width:720px;margin:2rem auto">
 <h1>ragkit-lite</h1>
 
-<!-- NEW: Upload Section -->
+<!-- NEW: Upload Section with Token -->
 <div style="background:#eef; padding:1rem; border-radius:5px; margin-bottom:1rem;">
-  <h3 style="margin-top:0">Upload a new document (.txt or .md)</h3>
-    <input type="file" id="fileInput" accept=".txt,.md,.pdf">
+  <h3 style="margin-top:0">Upload a new document (.txt, .md, or .pdf)</h3>
+  <input type="text" id="uploadToken" placeholder="Enter Upload Token (check terminal)" style="padding: 0.3rem; margin-bottom: 0.5rem; width: 300px;"><br>
+  <input type="file" id="fileInput" accept=".txt,.md,.pdf">
   <button onclick="uploadFile()" style="padding:0.3rem 1rem;">Upload & Index</button>
   <span id="uploadStatus" style="margin-left:1rem; font-weight:bold; color:#060;"></span>
 </div>
@@ -19,7 +20,9 @@
 <script>
 async function uploadFile() {
   const fileInput = document.getElementById("fileInput");
+  const tokenInput = document.getElementById("uploadToken").value;
   const status = document.getElementById("uploadStatus");
+  
   if (!fileInput.files.length) {
     status.style.color = "red";
     status.textContent = "Please select a file first.";
@@ -33,12 +36,21 @@ async function uploadFile() {
   try {
     const r = await fetch("/upload", {
       method: "POST",
-      headers: {"X-Filename": file.name, "Content-Type": "text/plain"},
+      headers: {
+        "X-Filename": file.name, 
+        "Content-Type": "text/plain",
+        "X-Upload-Token": tokenInput // Send the token
+      },
       body: file
     });
     const d = await r.json();
-    status.style.color = "green";
-    status.textContent = d.message;
+    if (r.ok) {
+      status.style.color = "green";
+      status.textContent = d.message;
+    } else {
+      status.style.color = "red";
+      status.textContent = d.message || "Upload failed.";
+    }
   } catch (e) {
     status.style.color = "red";
     status.textContent = "Error: " + e.message;
@@ -54,19 +66,22 @@ async function ask() {
       body: JSON.stringify({question: q})
     });
     const d = await r.json();
-    let s = "[" + d.tool + "] " + d.answer + "<br>";
+    
+    // Use \n instead of <br> because textContent respects newlines in <pre>
+    let s = "[" + d.tool + "] " + d.answer + "\n";
     
     if (d.citations && d.citations.length > 0) {
-      s += "<br>Abstained: " + d.abstained + "<br>";
-      s += "Confidence: " + d.confidence.toFixed(3) + "<br><br>";
-      s += "Citations:<br>";
+      s += "\nAbstained: " + d.abstained + "\n";
+      s += "Confidence: " + d.confidence.toFixed(3) + "\n\n";
+      s += "Citations:\n";
       for (const c of d.citations) {
-        s += "  - " + c.file + " p" + c.page + ": " + c.quote + "...<br>";
+        s += "  - " + c.file + " p" + c.page + ": " + c.quote + "...\n";
       }
     }
-    document.getElementById("out").innerHTML = s;
+    // SECURITY FIX: Use textContent to prevent XSS execution
+    document.getElementById("out").textContent = s;
   } catch (e) {
-    document.getElementById("out").innerHTML = "Error: " + e.message;
+    document.getElementById("out").textContent = "Error: " + e.message;
   }
 }
 </script></body></html>

@@ -15,7 +15,7 @@ def build_pipeline(config_path):
     bm25 = BM25Index()
     bm25.build(chunks)
     retriever = HybridRetriever(tfidf, bm25, cfg.top_k)
-    return RAGPipeline(retriever, cfg.abstain_threshold)
+    return RAGPipeline(retriever, cfg.abstain_threshold, cfg.abstain_mode)
 
 def main():
     parser = argparse.ArgumentParser(prog="ragkit")

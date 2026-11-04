@@ -1,15 +1,30 @@
 import re
 import sqlite3
+import ast
 from ragkit.schemas import Answer
 
 def calculate(expression):
+    # Strip anything that isn't a number or basic math operator
     safe_expr = re.sub(r'[^0-9+\-*/().]', '', expression)
     if not safe_expr:
         return "Invalid expression"
+    
     try:
-        return str(eval(safe_expr, {"__builtins__": None}, {}))
-    except Exception as e:
-        return "Error: " + str(e)
+        # Parse the expression into an AST to verify it only contains safe math
+        tree = ast.parse(safe_expr, mode='eval')
+        for node in ast.walk(tree):
+            if isinstance(node, (ast.Expression, ast.BinOp, ast.UnaryOp, ast.Constant)):
+                pass
+            elif isinstance(node, (ast.Add, ast.Sub, ast.Mult, ast.Div, ast.USub, ast.UAdd)):
+                pass
+            else:
+                return "Error: Unsupported operation (only + - * / allowed)"
+                
+        # Safely evaluate the verified AST
+        result = eval(compile(tree, '<string>', 'eval'), {"__builtins__": None}, {})
+        return str(result)
+    except Exception:
+        return "Error: Invalid syntax"
 
 def query_sql(question):
     conn = sqlite3.connect(':memory:')
