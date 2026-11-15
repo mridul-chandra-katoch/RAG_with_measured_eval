@@ -25,3 +25,7 @@
   - Status: Done
   - Test: `python -m ragkit.learned.train_reranker` (BM25-only 0.8009 beats RankNet 0.7880).
   - Open problems: Reranker needs better features to beat BM25.
+- [x] **A8**: Honest README with accurate baselines.
+  - Status: Done
+  - Test: Markdown renders correctly.
+  - Open problems: None.
