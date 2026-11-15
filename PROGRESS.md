@@ -41,3 +41,7 @@
   - Status: Done
   - Test: `python -m ragkit --help` shows all commands. 39 tests pass.
   - Open problems: None.
+- [x] **C1**: Parsers for md, txt, html, docx, pdf with real page numbers.
+  - Status: Done
+  - Test: `load_documents('data')` parses 18 documents.
+  - Open problems: None.
