@@ -57,13 +57,15 @@ def query_sql(question):
         return out
 
 def run_agent(question, pipeline):
-    q_lower = question.lower()
+    q_lower = question.lower().strip()
     
-    if 'calculate' in q_lower or 'math' in q_lower or re.search(r'\d+[\+\-\*/]', q_lower):
+    # Explicit routing prefixes
+    if q_lower.startswith("calculate "):
         return Answer(calculate(question), False, [], 1.0, "tool"), "Calculator Tool"
         
-    if 'student' in q_lower or 'database' in q_lower or 'grade' in q_lower:
+    if q_lower.startswith("sql: "):
         return Answer(query_sql(question), False, [], 1.0, "tool"), "SQL Tool"
         
+    # Default to document search
     ans = pipeline.ask(question)
     return ans, "Document Search Tool"
