@@ -29,3 +29,7 @@
   - Status: Done
   - Test: Markdown renders correctly.
   - Open problems: None.
+- [x] **B1**: Schemas per blueprint section 6 with validation.
+  - Status: Done
+  - Test: `tests` pass (38 tests).
+  - Open problems: None.
