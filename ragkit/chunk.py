@@ -21,7 +21,8 @@ def _fixed_chunk(text, file, page, section, max_tokens, overlap):
         chunk_text = " ".join(segment)
         h = hashlib.sha256(chunk_text.encode()).hexdigest()[:16]
         doc_id = file.replace("/", "_").replace("\\", "_").replace(".", "_")
-        chunk_id = f"{doc_id}_p{page}_c{start // step}"
+        # Use the hash in the chunk_id to prevent duplicates across sections
+        chunk_id = f"{doc_id}_p{page}_{h}"
         
         source = {"file": file, "page": page}
         if section:
@@ -35,7 +36,6 @@ def _fixed_chunk(text, file, page, section, max_tokens, overlap):
             content_hash="sha256:" + h,
         ))
     return chunks
-
 def chunk_documents(folder, max_tokens=400, overlap=50, strategy="structure_aware"):
     """Splits documents into retrievable chunks.
     

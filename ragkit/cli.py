@@ -1,19 +1,30 @@
 import argparse
 import json
 import sys
+import hashlib
 from pathlib import Path
+
+from ragkit.db import MetadataDB
 
 def build_pipeline(config_path):
     from ragkit.config import CorpusConfig
-    from ragkit.chunk import chunk_documents
     from ragkit.index import TFIDFIndex, BM25Index
     from ragkit.retrieve import HybridRetriever
     from ragkit.generate import RAGPipeline
     
     cfg = CorpusConfig.load(config_path)
-    # For now, grab the first source folder path
-    source_path = cfg.sources[0]["path"]
-    chunks = chunk_documents(Path(source_path), cfg.max_tokens, cfg.overlap_tokens, cfg.chunking_strategy)    
+    
+    # Load chunks from DB (much faster!)
+    db = MetadataDB()
+    chunks = db.get_all_chunks()
+    
+    # If empty, fallback to parsing (but warn user to run ingest)
+    if not chunks:
+        from ragkit.chunk import chunk_documents
+        source_path = cfg.sources[0]["path"]
+        chunks = chunk_documents(Path(source_path), cfg.max_tokens, cfg.overlap_tokens, cfg.chunking_strategy)
+        print("WARNING: DB is empty. Falling back to live parsing. Run 'ragkit ingest <folder>' to save to DB.")
+    
     tfidf = TFIDFIndex()
     tfidf.build(chunks)
     bm25 = BM25Index()
@@ -44,17 +55,10 @@ def main():
     # 4. Eval
     eval_p = sub.add_parser("eval")
     eval_sub = eval_p.add_subparsers(dest="eval_cmd", required=True)
-    
     eval_run = eval_sub.add_parser("run")
     eval_run.add_argument("--config", default="configs/corpus.yaml")
     eval_run.add_argument("--questions", default="evals/fixture_questions.json")
     eval_run.add_argument("--split", default="dev", choices=["dev", "test"])
-    
-    eval_gen = eval_sub.add_parser("generate")
-    eval_rev = eval_sub.add_parser("review")
-    eval_cmp = eval_sub.add_parser("compare")
-    eval_cmp.add_argument("run_a")
-    eval_cmp.add_argument("run_b")
 
     # 5. Redteam
     redteam_p = sub.add_parser("redteam")
@@ -79,9 +83,45 @@ def main():
     args = parser.parse_args()
 
     if args.cmd == "ingest":
-        print(f"Ingesting {args.folder} using {args.config}...")
-        p = build_pipeline(args.config)
-        print(f"Successfully ingested and indexed {len(p.retriever.tfidf.chunks)} chunks.")
+        from ragkit.config import CorpusConfig
+        from ragkit.chunk import chunk_documents
+        
+        cfg = CorpusConfig.load(args.config)
+        folder = Path(args.folder)
+        db = MetadataDB()
+        
+        print(f"Parsing folder {folder}...")
+        # Parse the folder ONCE
+        all_chunks = chunk_documents(folder, cfg.max_tokens, cfg.overlap_tokens, cfg.chunking_strategy)
+        
+        # Group chunks by file
+        chunks_by_file = {}
+        for c in all_chunks:
+            chunks_by_file.setdefault(c.source["file"], []).append(c)
+            
+        files_processed = 0
+        files_skipped = 0
+        
+        for path in folder.rglob("*"):
+            if not path.is_file() or path.suffix.lower() not in {".md", ".txt", ".pdf", ".html", ".htm", ".docx"}:
+                continue
+                
+            file_str = str(path.relative_to(folder))
+            file_bytes = path.read_bytes()
+            file_hash = hashlib.sha256(file_bytes).hexdigest()
+            doc_id = file_str.replace("/", "_").replace("\\", "_").replace(".", "_")
+            
+            existing_hash = db.get_file_hash(doc_id)
+            if existing_hash == file_hash:
+                files_skipped += 1
+                continue
+                
+            print(f"Processing {path.name}...")
+            doc_chunks = chunks_by_file.get(file_str, [])
+            db.add_document_with_chunks(doc_id, file_str, file_hash, doc_chunks)
+            files_processed += 1
+            
+        print(f"Ingest complete: {files_processed} files processed, {files_skipped} skipped (unchanged).")
         
     elif args.cmd == "ask":
         p = build_pipeline(args.config)
@@ -126,12 +166,10 @@ def main():
             
     elif args.cmd == "train":
         if args.model == "abstain":
-            print("Running abstention training...")
             from ragkit.learned.train_abstention import main as train_abstain
             sys.argv = ["train_abstention", "--max-articles", "150", "--seed", "42"]
             train_abstain()
         elif args.model == "reranker":
-            print("Running reranker training...")
             from ragkit.learned.train_reranker import main as train_reranker
             sys.argv = ["train_reranker", "--max-articles", "150", "--seed", "42"]
             train_reranker()

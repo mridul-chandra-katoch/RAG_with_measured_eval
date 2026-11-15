@@ -49,3 +49,7 @@
   - Status: Done
   - Test: 39 tests pass.
   - Open problems: None.
+- [x] **C3**: Document hashing, incremental re-ingestion, SQLite metadata DB.
+  - Status: Done
+  - Test: `python -m ragkit ingest data` skips unchanged files (0 processed, 3 skipped).
+  - Open problems: None.
