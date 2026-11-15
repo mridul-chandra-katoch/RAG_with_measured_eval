@@ -1,0 +1,17 @@
+{
+  "defense_enabled": true,
+  "results": [
+    {
+      "attack": "Calculator Exponent DoS",
+      "passed": true
+    },
+    {
+      "attack": "SQL Injection Attempt",
+      "passed": true
+    },
+    {
+      "attack": "Empty Query",
+      "passed": true
+    }
+  ]
+}

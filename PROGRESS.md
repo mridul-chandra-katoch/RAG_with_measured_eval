@@ -9,3 +9,7 @@
   - Status: Done
   - Test: `tests/test_agent.py` passes (4 tests).
   - Open problems: None.
+- [x] **A4**: Rewrite red team suite.
+  - Status: Done
+  - Test: `python -m ragkit redteam` (3/3 passed). `--no-defense` (2/3 passed).
+  - Open problems: None.

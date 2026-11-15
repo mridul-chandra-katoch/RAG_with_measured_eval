@@ -34,6 +34,7 @@ def main():
     serve_p.add_argument("--port", type=int, default=8000)
 
     redteam_p = sub.add_parser("redteam")
+    redteam_p.add_argument("--no-defense", action="store_true")
     redteam_p.add_argument("--config", default="configs/demo.json")
 
     agent_p = sub.add_parser("agent")
@@ -51,6 +52,7 @@ def main():
         print("Citations:")
         for c in ans.citations:
             print("  - " + c.file + " p" + str(c.page) + ": " + c.quote[:100] + "...")
+            
     elif args.cmd == "eval":
         from ragkit.evals import run_eval
         from ragkit.schemas import Question
@@ -60,14 +62,19 @@ def main():
         result = run_eval(qs, p.retriever, p)
         for k, v in result.items():
             print(k + ": " + str(v))
+            
     elif args.cmd == "serve":
         from ragkit.serve import serve
         p = build_pipeline(args.config)
         serve(p, args.port)
+        
     elif args.cmd == "redteam":
         from ragkit.redteam import run_redteam
         p = build_pipeline(args.config)
-        results = run_redteam(p)
+        
+        # Use the new defense flag
+        results = run_redteam(p, defense_enabled=not args.no_defense)
+        
         passed = sum(1 for r in results if r["passed"])
         total = len(results)
         print("RedTeam Results: " + str(passed) + "/" + str(total) + " passed")
@@ -77,6 +84,7 @@ def main():
             print("  " + r["attack"] + ": " + status)
             if not r["passed"] and "error" in r:
                 print("    Error: " + r["error"])
+                
     elif args.cmd == "agent":
         from ragkit.agent import run_agent
         p = build_pipeline(args.config)
