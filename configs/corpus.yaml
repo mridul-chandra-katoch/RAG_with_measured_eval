@@ -1,0 +1,30 @@
+{
+  "corpus": {
+    "name": "demo",
+    "sources": [{"type": "folder", "path": "./data"}],
+    "languages": ["en"],
+    "doc_versioning": "filename_date"
+  },
+  "ingest": {
+    "parsers": {"pdf": "layout", "docx": "default", "md": "default"},
+    "ocr": "auto"
+  },
+  "chunking": {
+    "strategy": "structure_aware",
+    "max_tokens": 400,
+    "overlap_tokens": 50
+  },
+  "retrieval": {
+    "top_k": 20,
+    "fusion": "rrf",
+    "reranker": {"enabled": true}
+  },
+  "generation": {
+    "provider": "extractive",
+    "abstain": {"mode": "learned", "min_score": 0.05}
+  },
+  "eval": {
+    "question_set": "./evals/fixture_questions.json",
+    "split_by": "document"
+  }
+}

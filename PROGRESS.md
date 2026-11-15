@@ -33,3 +33,7 @@
   - Status: Done
   - Test: `tests` pass (38 tests).
   - Open problems: None.
+- [x] **B2**: YAML corpus config with validating loader.
+  - Status: Done
+  - Test: `tests/test_config.py` passes (39 tests total).
+  - Open problems: None.
