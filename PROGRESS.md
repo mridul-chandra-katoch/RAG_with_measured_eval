@@ -17,3 +17,7 @@
   - Status: Done
   - Test: Server starts and prints a secure 32-char token.
   - Open problems: None.
+- [x] **A6**: Add tests for chunking, ingestion, and server.
+  - Status: Done
+  - Test: `python -m unittest discover -s tests -t . -v` (38 tests pass).
+  - Open problems: None.
