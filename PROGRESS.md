@@ -45,3 +45,7 @@
   - Status: Done
   - Test: `load_documents('data')` parses 18 documents.
   - Open problems: None.
+- [x] **C2**: Structure-aware chunking.
+  - Status: Done
+  - Test: 39 tests pass.
+  - Open problems: None.

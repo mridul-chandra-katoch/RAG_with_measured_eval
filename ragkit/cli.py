@@ -13,8 +13,7 @@ def build_pipeline(config_path):
     cfg = CorpusConfig.load(config_path)
     # For now, grab the first source folder path
     source_path = cfg.sources[0]["path"]
-    chunks = chunk_documents(Path(source_path), cfg.max_tokens, cfg.overlap_tokens)
-    
+    chunks = chunk_documents(Path(source_path), cfg.max_tokens, cfg.overlap_tokens, cfg.chunking_strategy)    
     tfidf = TFIDFIndex()
     tfidf.build(chunks)
     bm25 = BM25Index()
