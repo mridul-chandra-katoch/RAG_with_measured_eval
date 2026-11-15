@@ -1,1 +1,1 @@
-pdfminer.six
+pdfminer.six==20231228
