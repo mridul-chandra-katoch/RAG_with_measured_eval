@@ -13,3 +13,7 @@
   - Status: Done
   - Test: `python -m ragkit redteam` (3/3 passed). `--no-defense` (2/3 passed).
   - Open problems: None.
+- [x] **A5**: Harden server (size cap, rate limit, 0.0.0.0 for Docker).
+  - Status: Done
+  - Test: Server starts and prints a secure 32-char token.
+  - Open problems: None.

@@ -1,6 +1,7 @@
 import json
 import os
 import secrets
+import time
 from pathlib import Path
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from ragkit.agent import run_agent
@@ -8,8 +9,10 @@ from ragkit.cli import build_pipeline
 from ragkit.config import Config
 from ragkit.chunk import chunk_documents
 
-# Generate a random 8-character token every time the server starts
-SERVER_UPLOAD_TOKEN = secrets.token_hex(4)
+# Generate a secure 32-character token
+SERVER_UPLOAD_TOKEN = secrets.token_hex(16)
+MAX_UPLOAD_SIZE = 5 * 1024 * 1024  # 5 MB
+RATE_LIMIT_DICT = {}
 
 class Handler(BaseHTTPRequestHandler):
     pipeline = None
@@ -30,10 +33,28 @@ class Handler(BaseHTTPRequestHandler):
             self.wfile.write(b"Not Found")
             
     def do_POST(self):
+        client_ip = self.client_address[0]
+        now = time.time()
+        
+        # Rate limiting (10 requests per minute)
+        if client_ip not in RATE_LIMIT_DICT:
+            RATE_LIMIT_DICT[client_ip] = []
+        RATE_LIMIT_DICT[client_ip] = [t for t in RATE_LIMIT_DICT[client_ip] if now - t < 60]
+        if len(RATE_LIMIT_DICT[client_ip]) >= 10:
+            self.send_response(429)
+            self.end_headers()
+            self.wfile.write(b"Too Many Requests")
+            return
+        RATE_LIMIT_DICT[client_ip].append(now)
+
         length = int(self.headers.get("Content-Length", 0))
+        if length > MAX_UPLOAD_SIZE and self.path == "/upload":
+            self.send_response(413)
+            self.end_headers()
+            self.wfile.write(b"Payload Too Large")
+            return
         
         if self.path == "/upload":
-            # SECURITY FIX: Require the upload token
             if self.headers.get("X-Upload-Token") != SERVER_UPLOAD_TOKEN:
                 self.send_response(401)
                 self.end_headers()
@@ -87,10 +108,11 @@ class Handler(BaseHTTPRequestHandler):
                 self.send_header("Content-Type", "application/json")
                 self.end_headers()
                 self.wfile.write(payload)
-            except Exception as e:
+            except Exception:
+                # SECURITY FIX: Do not leak str(e) to the client
                 self.send_response(500)
                 self.end_headers()
-                self.wfile.write(str(e).encode("utf-8"))
+                self.wfile.write(b"Internal Server Error")
             return
             
         self.send_response(404)
@@ -99,8 +121,9 @@ class Handler(BaseHTTPRequestHandler):
 
 def serve(pipeline, port=8000):
     Handler.pipeline = pipeline
-    # SECURITY FIX: Bind to 127.0.0.1 to prevent external network access
-    server = ThreadingHTTPServer(("127.0.0.1", port), Handler)
-    print(f"Serving on http://127.0.0.1:{port}")
-    print(f"UPLOAD TOKEN: {SERVER_UPLOAD_TOKEN} (You must enter this in the UI to upload files)")
+    # SECURITY FIX: Bind to 0.0.0.0 if in Docker, otherwise localhost
+    host = "0.0.0.0" if os.environ.get("DOCKER") == "1" else "127.0.0.1"
+    server = ThreadingHTTPServer((host, port), Handler)
+    print(f"Serving on http://{host}:{port}")
+    print(f"UPLOAD TOKEN: {SERVER_UPLOAD_TOKEN}")
     server.serve_forever()
