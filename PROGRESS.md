@@ -37,3 +37,7 @@
   - Status: Done
   - Test: `tests/test_config.py` passes (39 tests total).
   - Open problems: None.
+- [x] **B3**: Expand CLI per blueprint 7.1.
+  - Status: Done
+  - Test: `python -m ragkit --help` shows all commands. 39 tests pass.
+  - Open problems: None.
