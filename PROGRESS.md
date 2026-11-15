@@ -53,3 +53,7 @@
   - Status: Done
   - Test: `python -m ragkit ingest data` skips unchanged files (0 processed, 3 skipped).
   - Open problems: None.
+- [x] **C4**: Embedder interface and HashingEmbedder.
+  - Status: Done
+  - Test: `tests/test_embedder.py` passes (43 tests total).
+  - Open problems: None.
