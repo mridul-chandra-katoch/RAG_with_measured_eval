@@ -21,3 +21,7 @@
   - Status: Done
   - Test: `python -m unittest discover -s tests -t . -v` (38 tests pass).
   - Open problems: None.
+- [x] **A7**: Reranker cleanup and honest baselines.
+  - Status: Done
+  - Test: `python -m ragkit.learned.train_reranker` (BM25-only 0.8009 beats RankNet 0.7880).
+  - Open problems: Reranker needs better features to beat BM25.

@@ -27,21 +27,19 @@ def extract_pair_features(query_tokens, chunk_tokens, bm25_score, tfidf_score, r
     # Exact match proportion: how many query words appear in the chunk
     q_match = overlap / len(q_set) if q_set else 0.0
     
-    # Features:
+    # Features (Query length removed):
     # 1. BM25 raw score
     # 2. TF-IDF cosine score
     # 3. RRF score
-    # 4. Query length
-    # 5. Chunk length
-    # 6. Word overlap count
-    # 7. Jaccard similarity
-    # 8. Query match proportion
+    # 4. Chunk length
+    # 5. Word overlap count
+    # 6. Jaccard similarity
+    # 7. Query match proportion
     
     return [
         bm25_score,
         tfidf_score,
         rrf_score,
-        float(len(query_tokens)),
         float(len(chunk_tokens)),
         float(overlap),
         jaccard,
@@ -63,7 +61,6 @@ def train_ranknet(
     
     d = len(X_pairs[0][0])
     w = [0.0] * d
-    # Bias is not used in ranking, so we drop it entirely to prevent numerical instability
     rng = random.Random(seed)
     
     for epoch in range(1, epochs + 1):
@@ -82,7 +79,6 @@ def train_ranknet(
                 s_neg = sum(wj * xj for wj, xj in zip(w, x_neg))
                 s_diff = s_pos - s_neg
                 
-                # P(pos > neg) = sigmoid(s_diff)
                 # Gradient of loss w.r.t s_diff is sigmoid(-s_diff)
                 p = sigmoid(-s_diff)
                 
