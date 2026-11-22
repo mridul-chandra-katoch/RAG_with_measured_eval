@@ -61,7 +61,7 @@ class RAGPipeline:
             self._corpus_tokens = tokens
         return self._corpus_tokens
 
-    def ask(self, question, top_k=5):
+    def ask(self, question, top_k=5, user_acl=None):
         trace_id = str(uuid.uuid4())
         q_content = set(_clean_tokens(question))
         
@@ -70,7 +70,7 @@ class RAGPipeline:
         if not (q_content & self._get_corpus_tokens()):
             return Answer("Not found in the documents.", True, [], 0.0, trace_id)
             
-        fused, top_raw = self.retriever.retrieve(question)
+        fused, top_raw = self.retriever.retrieve(question, user_acl=user_acl)
         
         # 1. Abstention Check
         use_learned = self.abstain_mode == "learned" and self.abstain_data and len(self.retriever.tfidf.chunks) >= 100

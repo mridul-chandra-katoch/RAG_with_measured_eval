@@ -6,8 +6,7 @@ from pathlib import Path
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from ragkit.agent import run_agent
 from ragkit.cli import build_pipeline
-from ragkit.config import Config
-from ragkit.chunk import chunk_documents
+from ragkit.observe import log_trace
 
 SERVER_UPLOAD_TOKEN = secrets.token_hex(16)
 MAX_UPLOAD_SIZE = 5 * 1024 * 1024
@@ -32,7 +31,6 @@ class Handler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(json.dumps({"status": "ok"}).encode("utf-8"))
         elif self.path == "/runs":
-            # Mock endpoint for reading run records
             runs = [f.name for f in Path("results").glob("*.json")] if Path("results").exists() else []
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
@@ -92,7 +90,13 @@ class Handler(BaseHTTPRequestHandler):
             body = self.rfile.read(length).decode("utf-8")
             try:
                 data = json.loads(body)
+                start_t = time.time()
                 ans, tool = run_agent(data["question"], self.pipeline)
+                latency = (time.time() - start_t) * 1000
+                
+                # H2: Observability trace
+                log_trace(ans.trace_id, data["question"], latency, 0.0, [c.chunk_id for c in ans.citations])
+                
                 payload = json.dumps({
                     "answer": ans.answer,
                     "tool": tool,

@@ -105,3 +105,10 @@
   - Status: Done
   - Test: `python -m ragkit redteam --no-defense` (2/6 passed) vs `python -m ragkit redteam` (6/6 passed).
   - Results: Input/output filters successfully drop attack success rate from 66.7% to 0.0%.
+- [x] **H2**: Observability (traces, p50/p95, drift).
+  - Status: Done
+  - Test: `python -m ragkit report` shows p50/p95 latencies.
+- [x] **H3**: Agent Layer (read-only SQL, AST calculator).
+  - Status: Done
+- [x] **H4**: ACL-aware retrieval.
+  - Status: Done

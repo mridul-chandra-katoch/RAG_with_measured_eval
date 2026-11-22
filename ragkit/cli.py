@@ -2,6 +2,7 @@ import argparse
 import json
 import sys
 import hashlib
+import time
 from pathlib import Path
 
 from ragkit.db import MetadataDB
@@ -29,7 +30,7 @@ def build_pipeline(config_path):
     bm25 = BM25Index()
     bm25.build(chunks)
     
-    retriever = HybridRetriever(tfidf, bm25, cfg.retrieval_top_k)
+    retriever = HybridRetriever(tfidf, bm25, cfg.retrieval_top_k, use_rrf=(cfg.fusion == "rrf"))
     
     return RAGPipeline(
         retriever, 
@@ -134,8 +135,14 @@ def main():
         print(f"Ingest complete: {files_processed} files processed, {files_skipped} skipped, {deleted_count} deleted.")
         
     elif args.cmd == "ask":
+        from ragkit.observe import log_trace
+        
         p = build_pipeline(args.config)
+        start_t = time.time()
         ans = p.ask(args.question)
+        latency = (time.time() - start_t) * 1000
+        log_trace(ans.trace_id, args.question, latency, 0.0, [c.chunk_id for c in ans.citations])
+        
         print("Answer: " + ans.answer)
         print("Abstained: " + str(ans.abstained))
         print("Confidence: " + format(ans.confidence, ".3f"))
@@ -198,7 +205,11 @@ def main():
             train_reranker()
 
     elif args.cmd == "report":
-        print(f"Fetching report for run_id: {args.run_id} (Not implemented yet)")
+        from ragkit.observe import get_latency_percentiles
+        p50, p95 = get_latency_percentiles()
+        print("--- Observability Report ---")
+        print(f"p50 Latency: {p50:.2f} ms")
+        print(f"p95 Latency: {p95:.2f} ms")
         
     elif args.cmd == "agent":
         from ragkit.agent import run_agent
