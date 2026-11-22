@@ -101,3 +101,7 @@
   - Test: `python -m ragkit.learned.train_abstention`
   - Results: AUROC 0.9003 vs baseline 0.8107 (diff CI [0.0625, 0.1150]). Cache rebuilt with BM25 features.
   - Open problems: None.
+- [x] **H1**: Red team: 6 attack classes with defenses.
+  - Status: Done
+  - Test: `python -m ragkit redteam --no-defense` (2/6 passed) vs `python -m ragkit redteam` (6/6 passed).
+  - Results: Input/output filters successfully drop attack success rate from 66.7% to 0.0%.
