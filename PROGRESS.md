@@ -90,3 +90,9 @@
 - [~] **G1**: Reranker ablation.
   - Results: MRR 0.7966 (XGBoost, external baseline), 0.7985 (RankNet), 0.8009 (BM25). Split: test (SQuAD). CI: pending.
   - Features were all BM25-derived (no new signal). Reranker disabled. Next: G1b, non-BM25 features, dev only.
+- [~] **G1a**: Fusion ablation (SQuAD dev, cluster bootstrap by article).
+  - Results: BM25-only MRR 0.7854; RRF(TF-IDF, BM25) 0.7482; TF-IDF-only 0.7090. RRF - BM25: CI [-0.0454, -0.0298].
+  - Open: abstainer dependence on fused scores verified (reads f1, f2). Fusion default unchanged pending G2.
+- [~] **G1**: Reranker ablation.
+  - Results: MRR 0.7966 (XGBoost, external baseline), 0.7985 (RankNet), 0.8009 (BM25). Split: test (SQuAD). CI: pending.
+  - Features were all BM25-derived (no new signal). Reranker disabled. Next: G1b, non-BM25 features, dev only.
