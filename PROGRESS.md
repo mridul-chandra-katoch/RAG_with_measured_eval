@@ -70,3 +70,8 @@
   - Status: Done
   - Test: `tests/test_claim_check.py` passes (50 tests total).
   - Open problems: None.
+- [x] **D4**: Score the set through the single query path.
+  - Status: Done
+  - Test: `python -m ragkit eval run --questions evals/questions.jsonl`
+  - Results: hit@5=1.0000, recall@5=1.0000, mrr=0.9345 (n=28).
+  - Open problems: The questions are synthetic and based on a single clean document.

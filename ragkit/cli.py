@@ -52,7 +52,7 @@ def main():
     eval_sub = eval_p.add_subparsers(dest="eval_cmd", required=True)
     eval_run = eval_sub.add_parser("run")
     eval_run.add_argument("--config", default="configs/corpus.yaml")
-    eval_run.add_argument("--questions", default="evals/fixture_questions.json")
+    eval_run.add_argument("--questions", default="evals/questions.jsonl")
     eval_run.add_argument("--split", default="dev", choices=["dev", "test"])
 
     redteam_p = sub.add_parser("redteam")
@@ -143,14 +143,19 @@ def main():
         
     elif args.cmd == "eval":
         if args.eval_cmd == "run":
-            from ragkit.evals import run_eval
-            from ragkit.schemas import Question
+            from ragkit.evals import run_benchmark
             p = build_pipeline(args.config)
-            raw = json.loads(Path(args.questions).read_text(encoding="utf-8"))
-            qs = [Question(**q) for q in raw]
-            result = run_eval(qs, p.retriever, p)
+            
+            qs = []
+            with open(args.questions, "r", encoding="utf-8") as f:
+                for line in f:
+                    if line.strip():
+                        qs.append(json.loads(line))
+                        
+            result = run_benchmark(qs, p.retriever, k=5)
+            print(f"--- Evaluation Results ({args.split}) ---")
             for k, v in result.items():
-                print(k + ": " + str(v))
+                print(f"{k}: {v:.4f}" if isinstance(v, float) else f"{k}: {v}")
         else:
             print(f"Eval subcommand '{args.eval_cmd}' not fully implemented yet.")
             
