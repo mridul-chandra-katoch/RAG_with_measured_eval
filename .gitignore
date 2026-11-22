@@ -24,3 +24,5 @@ results/cache/*
 *.egg-info/
 results/*.db
 results/*.jsonl
+
+results/*.db
