@@ -16,7 +16,7 @@
   },
   "retrieval": {
     "top_k": 20,
-    "fusion": "rrf",
+    "fusion": "bm25",
     "reranker": {"enabled": true}
   },
   "generation": {

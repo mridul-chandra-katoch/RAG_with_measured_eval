@@ -14,6 +14,11 @@ FEATURE_GROUP_COLUMNS = {
 }
 
 def split_articles(num_articles, max_articles, seed):
+    if max_articles < 10:
+        raise ValueError(f"max_articles must be >= 10, got {max_articles}")
+    if max_articles > num_articles:
+        raise ValueError(f"max_articles ({max_articles}) > num_articles ({num_articles})")
+    
     rng = random.Random(seed)
     sampled = rng.sample(range(num_articles), max_articles)
     n_train = round(0.60 * max_articles)
@@ -45,8 +50,12 @@ def build_chunks(article_indices, squad_data):
     return chunks
 
 def extract_features(query_text, retriever):
-    tfidf_results = retriever.tfidf.search(query_text, retriever.top_k)
-    bm25_results = retriever.bm25.search(query_text, retriever.top_k)
+    tfidf_raw = retriever.tfidf.search(query_text, retriever.top_k)
+    bm25_raw = retriever.bm25.search(query_text, retriever.top_k)
+    
+    # Apply zero-score filtering (preserves items with score > 0.0)
+    tfidf_results = [(c, s) for c, s in tfidf_raw if s > 0.0]
+    bm25_results = [(c, s) for c, s in bm25_raw if s > 0.0]
     
     f1 = bm25_results[0][1] if bm25_results else 0.0
     f2 = (bm25_results[0][1] - bm25_results[1][1]) if len(bm25_results) >= 2 else (bm25_results[0][1] if bm25_results else 0.0)
