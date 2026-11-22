@@ -9,14 +9,13 @@ from ragkit.cli import build_pipeline
 from ragkit.config import Config
 from ragkit.chunk import chunk_documents
 
-# Generate a secure 32-character token
 SERVER_UPLOAD_TOKEN = secrets.token_hex(16)
-MAX_UPLOAD_SIZE = 5 * 1024 * 1024  # 5 MB
+MAX_UPLOAD_SIZE = 5 * 1024 * 1024
 RATE_LIMIT_DICT = {}
 
 class Handler(BaseHTTPRequestHandler):
     pipeline = None
-    config_path = "configs/demo.json"
+    config_path = "configs/corpus.yaml"
     
     def log_message(self, *args): pass
     
@@ -27,6 +26,18 @@ class Handler(BaseHTTPRequestHandler):
             self.end_headers()
             with open('index.html', 'rb') as f:
                 self.wfile.write(f.read())
+        elif self.path == "/health":
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({"status": "ok"}).encode("utf-8"))
+        elif self.path == "/runs":
+            # Mock endpoint for reading run records
+            runs = [f.name for f in Path("results").glob("*.json")] if Path("results").exists() else []
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({"runs": runs}).encode("utf-8"))
         else:
             self.send_response(404)
             self.end_headers()
@@ -36,11 +47,10 @@ class Handler(BaseHTTPRequestHandler):
         client_ip = self.client_address[0]
         now = time.time()
         
-        # Rate limiting (10 requests per minute)
         if client_ip not in RATE_LIMIT_DICT:
             RATE_LIMIT_DICT[client_ip] = []
         RATE_LIMIT_DICT[client_ip] = [t for t in RATE_LIMIT_DICT[client_ip] if now - t < 60]
-        if len(RATE_LIMIT_DICT[client_ip]) >= 10:
+        if len(RATE_LIMIT_DICT[client_ip]) >= 20:
             self.send_response(429)
             self.end_headers()
             self.wfile.write(b"Too Many Requests")
@@ -48,17 +58,17 @@ class Handler(BaseHTTPRequestHandler):
         RATE_LIMIT_DICT[client_ip].append(now)
 
         length = int(self.headers.get("Content-Length", 0))
-        if length > MAX_UPLOAD_SIZE and self.path == "/upload":
-            self.send_response(413)
-            self.end_headers()
-            self.wfile.write(b"Payload Too Large")
-            return
         
         if self.path == "/upload":
             if self.headers.get("X-Upload-Token") != SERVER_UPLOAD_TOKEN:
                 self.send_response(401)
                 self.end_headers()
-                self.wfile.write(b"Unauthorized: Missing or invalid upload token.")
+                self.wfile.write(b"Unauthorized")
+                return
+            if length > MAX_UPLOAD_SIZE:
+                self.send_response(413)
+                self.end_headers()
+                self.wfile.write(b"Payload Too Large")
                 return
 
             filename = self.headers.get("X-Filename", "uploaded.txt")
@@ -72,20 +82,10 @@ class Handler(BaseHTTPRequestHandler):
                 f.write(body)
                 
             Handler.pipeline = build_pipeline(Handler.config_path)
-            
-            cfg = Config.load(Handler.config_path)
-            all_chunks = chunk_documents(Path("data"), cfg.max_tokens, cfg.overlap_tokens)
-            file_chunks = [c for c in all_chunks if c.source["file"] == safe_name]
-            
-            if len(file_chunks) == 0:
-                msg = f"Uploaded {safe_name}, but extracted 0 chunks. (Is it a scanned image PDF?)"
-            else:
-                msg = f"Successfully indexed {safe_name} ({len(file_chunks)} chunks)."
-                
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
             self.end_headers()
-            self.wfile.write(json.dumps({"message": msg}).encode("utf-8"))
+            self.wfile.write(json.dumps({"message": f"Uploaded {safe_name}"}).encode("utf-8"))
             return
 
         if self.path == "/ask":
@@ -109,10 +109,25 @@ class Handler(BaseHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(payload)
             except Exception:
-                # SECURITY FIX: Do not leak str(e) to the client
                 self.send_response(500)
                 self.end_headers()
                 self.wfile.write(b"Internal Server Error")
+            return
+            
+        if self.path == "/feedback":
+            body = self.rfile.read(length).decode("utf-8")
+            try:
+                data = json.loads(body)
+                Path("results").mkdir(exist_ok=True)
+                with open("results/feedback.jsonl", "a", encoding="utf-8") as f:
+                    f.write(json.dumps(data) + "\n")
+                self.send_response(200)
+                self.end_headers()
+                self.wfile.write(b"Feedback recorded")
+            except Exception:
+                self.send_response(500)
+                self.end_headers()
+                self.wfile.write(b"Error saving feedback")
             return
             
         self.send_response(404)
@@ -121,7 +136,6 @@ class Handler(BaseHTTPRequestHandler):
 
 def serve(pipeline, port=8000):
     Handler.pipeline = pipeline
-    # SECURITY FIX: Bind to 0.0.0.0 if in Docker, otherwise localhost
     host = "0.0.0.0" if os.environ.get("DOCKER") == "1" else "127.0.0.1"
     server = ThreadingHTTPServer((host, port), Handler)
     print(f"Serving on http://{host}:{port}")

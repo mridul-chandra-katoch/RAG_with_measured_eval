@@ -75,3 +75,7 @@
   - Test: `python -m ragkit eval run --questions evals/questions.jsonl`
   - Results: hit@5=1.0000, recall@5=1.0000, mrr=0.9345 (n=28).
   - Open problems: The questions are synthetic and based on a single clean document.
+- [x] **E1 & E2**: Wire reranker, add REST endpoints, feedback UI.
+  - Status: Done
+  - Test: Server runs, `/health`, `/runs`, `/feedback` work. 50 tests pass.
+  - Open problems: Note that we used stdlib `http.server` instead of FastAPI per the zero-dependency rule.

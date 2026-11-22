@@ -30,7 +30,14 @@ def build_pipeline(config_path):
     bm25.build(chunks)
     
     retriever = HybridRetriever(tfidf, bm25, cfg.retrieval_top_k)
-    return RAGPipeline(retriever, cfg.abstain_threshold, cfg.abstain_mode, cfg.provider_name)
+    
+    return RAGPipeline(
+        retriever, 
+        cfg.abstain_threshold, 
+        cfg.abstain_mode, 
+        cfg.provider_name, 
+        cfg.reranker_enabled
+    )
 
 def main():
     parser = argparse.ArgumentParser(prog="ragkit")

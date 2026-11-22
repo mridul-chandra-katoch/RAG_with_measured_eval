@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  ragkit:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - DOCKER=1
+    volumes:
+      - ./data:/app/data
+      - ./results:/app/results
+      - ./models:/app/models

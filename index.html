@@ -3,7 +3,6 @@
 <body style="font-family:sans-serif;max-width:720px;margin:2rem auto">
 <h1>ragkit-lite</h1>
 
-<!-- NEW: Upload Section with Token -->
 <div style="background:#eef; padding:1rem; border-radius:5px; margin-bottom:1rem;">
   <h3 style="margin-top:0">Upload a new document (.txt, .md, or .pdf)</h3>
   <input type="text" id="uploadToken" placeholder="Enter Upload Token (check terminal)" style="padding: 0.3rem; margin-bottom: 0.5rem; width: 300px;"><br>
@@ -12,12 +11,19 @@
   <span id="uploadStatus" style="margin-left:1rem; font-weight:bold; color:#060;"></span>
 </div>
 
-<!-- Question Section -->
 <textarea id="q" rows="3" style="width:100%;font-size:1rem" placeholder="Ask a question..."></textarea>
 <button onclick="ask()" style="padding:0.5rem 1rem;margin-top:0.5rem">Ask</button>
 <pre id="out" style="white-space:pre-wrap;background:#f4f4f4;padding:1rem;margin-top:1rem"></pre>
 
+<div id="feedbackBox" style="display:none;">
+  <span>Was this helpful? </span>
+  <button onclick="sendFeedback(1)">👍 Yes</button>
+  <button onclick="sendFeedback(-1)">👎 No</button>
+</div>
+
 <script>
+let currentTraceId = null;
+
 async function uploadFile() {
   const fileInput = document.getElementById("fileInput");
   const tokenInput = document.getElementById("uploadToken").value;
@@ -39,7 +45,7 @@ async function uploadFile() {
       headers: {
         "X-Filename": file.name, 
         "Content-Type": "text/plain",
-        "X-Upload-Token": tokenInput // Send the token
+        "X-Upload-Token": tokenInput
       },
       body: file
     });
@@ -59,6 +65,8 @@ async function uploadFile() {
 
 async function ask() {
   const q = document.getElementById("q").value;
+  document.getElementById("feedbackBox").style.display = "none";
+  
   try {
     const r = await fetch("/ask", {
       method: "POST",
@@ -67,7 +75,8 @@ async function ask() {
     });
     const d = await r.json();
     
-    // Use \n instead of <br> because textContent respects newlines in <pre>
+    currentTraceId = d.trace_id;
+    
     let s = "[" + d.tool + "] " + d.answer + "\n";
     
     if (d.citations && d.citations.length > 0) {
@@ -78,10 +87,24 @@ async function ask() {
         s += "  - " + c.file + " p" + c.page + ": " + c.quote + "...\n";
       }
     }
-    // SECURITY FIX: Use textContent to prevent XSS execution
     document.getElementById("out").textContent = s;
+    document.getElementById("feedbackBox").style.display = "block";
   } catch (e) {
     document.getElementById("out").textContent = "Error: " + e.message;
+  }
+}
+
+async function sendFeedback(score) {
+  if (!currentTraceId) return;
+  try {
+    await fetch("/feedback", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({trace_id: currentTraceId, score: score})
+    });
+    document.getElementById("feedbackBox").innerHTML = "<span>Thank you for your feedback!</span>";
+  } catch (e) {
+    alert("Could not save feedback.");
   }
 }
 </script></body></html>
