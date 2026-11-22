@@ -19,9 +19,11 @@ def _fixed_chunk(text, file, page, section, max_tokens, overlap):
             continue
             
         chunk_text = " ".join(segment)
-        h = hashlib.sha256(chunk_text.encode()).hexdigest()[:16]
+        sec_str = section if section else "General"
+        
+        # Include the section name in the hash so identical text in different sections gets a unique ID
+        h = hashlib.sha256((sec_str + chunk_text).encode()).hexdigest()[:16]
         doc_id = file.replace("/", "_").replace("\\", "_").replace(".", "_")
-        # Use the hash in the chunk_id to prevent duplicates across sections
         chunk_id = f"{doc_id}_p{page}_{h}"
         
         source = {"file": file, "page": page}

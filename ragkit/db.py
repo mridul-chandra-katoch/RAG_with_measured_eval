@@ -1,6 +1,7 @@
 import sqlite3
 import json
 import datetime
+from contextlib import contextmanager
 from pathlib import Path
 from ragkit.schemas import Chunk
 
@@ -10,8 +11,13 @@ class MetadataDB:
         Path(self.db_path).parent.mkdir(parents=True, exist_ok=True)
         self._init_db()
 
+    @contextmanager
     def _get_conn(self):
-        return sqlite3.connect(self.db_path)
+        conn = sqlite3.connect(self.db_path)
+        try:
+            yield conn
+        finally:
+            conn.close()
 
     def _init_db(self):
         with self._get_conn() as conn:
@@ -20,7 +26,7 @@ class MetadataDB:
                 CREATE TABLE IF NOT EXISTS documents (
                     doc_id TEXT PRIMARY KEY,
                     file_path TEXT,
-                    file_hash TEXT,
+                    cache_key TEXT,
                     ingested_at TEXT
                 )
             """)
@@ -36,10 +42,10 @@ class MetadataDB:
             """)
             conn.commit()
 
-    def get_file_hash(self, doc_id):
+    def get_cache_key(self, doc_id):
         with self._get_conn() as conn:
             cursor = conn.cursor()
-            cursor.execute("SELECT file_hash FROM documents WHERE doc_id = ?", (doc_id,))
+            cursor.execute("SELECT cache_key FROM documents WHERE doc_id = ?", (doc_id,))
             row = cursor.fetchone()
             return row[0] if row else None
 
@@ -50,14 +56,14 @@ class MetadataDB:
             cursor.execute("DELETE FROM documents WHERE doc_id = ?", (doc_id,))
             conn.commit()
 
-    def add_document_with_chunks(self, doc_id, file_path, file_hash, chunks):
+    def add_document_with_chunks(self, doc_id, file_path, cache_key, chunks):
         self.delete_document(doc_id)
         now = datetime.datetime.now().isoformat()
         with self._get_conn() as conn:
             cursor = conn.cursor()
             cursor.execute(
-                "INSERT INTO documents (doc_id, file_path, file_hash, ingested_at) VALUES (?, ?, ?, ?)",
-                (doc_id, file_path, file_hash, now)
+                "INSERT INTO documents (doc_id, file_path, cache_key, ingested_at) VALUES (?, ?, ?, ?)",
+                (doc_id, file_path, cache_key, now)
             )
             for c in chunks:
                 cursor.execute(
@@ -80,3 +86,9 @@ class MetadataDB:
                     content_hash=row[4]
                 ))
         return chunks
+
+    def get_all_doc_ids(self):
+        with self._get_conn() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT doc_id FROM documents")
+            return [row[0] for row in cursor.fetchall()]

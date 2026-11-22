@@ -57,3 +57,8 @@
   - Status: Done
   - Test: `tests/test_embedder.py` passes (43 tests total).
   - Open problems: None.
+- [x] **C3b**: Composite cache key, deleted file cleanup, regression tests.
+  - Status: Done
+  - Test: 46 tests pass.
+  - Open problems: None.
+  - **What failed**: Duplicate chunk-ID collision when identical text appeared in multiple sections. Fixed by hashing the section name into the chunk ID, and added a permanent regression test (`test_duplicate_chunk_id_regression`).
