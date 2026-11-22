@@ -6,7 +6,6 @@ from pathlib import Path
 from ragkit.schemas import Answer
 from ragkit.learned.features import extract_features
 from ragkit.learned import logreg as LR
-from ragkit.learned.reranker import extract_pair_features, score_chunks
 from ragkit.index import tokenize
 from ragkit.providers import ExtractiveProvider, OllamaProvider
 
@@ -47,9 +46,9 @@ class RAGPipeline:
             self.abstain_mode = "threshold"
 
     def _load_reranker_model(self):
-        model_path = Path("models/reranker_lr.json")
+        model_path = Path("models/reranker_xgb.json")
         if model_path.exists():
-            self.reranker_data = json.loads(model_path.read_text(encoding="utf-8"))
+            self.reranker_data = True
         else:
             print(f"WARNING: {model_path} not found. Disabling reranker.")
             self.reranker_enabled = False
@@ -88,24 +87,40 @@ class RAGPipeline:
                 
         # 2. Reranker
         if self.reranker_enabled and self.reranker_data and fused:
+            import xgboost as xgb
+            import numpy as np
+            from ragkit.learned.reranker import extract_pair_features
+            
+            model = xgb.XGBRanker()
+            model.load_model("models/reranker_xgb.json")
+            
             tfidf_res = self.retriever.tfidf.search(question, self.retriever.top_k)
             bm25_res = self.retriever.bm25.search(question, self.retriever.top_k)
             tfidf_map = {c.chunk_id: s for c, s in tfidf_res}
             bm25_map = {c.chunk_id: s for c, s in bm25_res}
-            q_tokens = tokenize(question)
+            tfidf_rank_map = {c.chunk_id: r+1 for r, (c, _) in enumerate(tfidf_res)}
+            bm25_rank_map = {c.chunk_id: r+1 for r, (c, _) in enumerate(bm25_res)}
+            top_bm25 = bm25_res[0][1] if bm25_res else 0.0
+            top_tfidf = tfidf_res[0][1] if tfidf_res else 0.0
             
-            feats = []
+            q_tokens = tokenize(question)
+            X_test = []
             for chunk, rrf_score in fused:
                 c_tokens = tokenize(chunk.text)
+                try: c_pos = int(chunk.chunk_id.split("_p")[1])
+                except: c_pos = 0
                 raw_f = extract_pair_features(
-                    q_tokens, c_tokens,
+                    q_tokens, question, c_tokens, chunk.text,
                     bm25_map.get(chunk.chunk_id, 0.0),
                     tfidf_map.get(chunk.chunk_id, 0.0),
-                    rrf_score
+                    rrf_score,
+                    bm25_rank_map.get(chunk.chunk_id, 0),
+                    tfidf_rank_map.get(chunk.chunk_id, 0),
+                    c_pos, top_bm25, top_tfidf
                 )
-                feats.append([(raw_f[j] - self.reranker_data["means"][j]) / self.reranker_data["stds"][j] for j in range(len(raw_f))])
-            
-            scores = score_chunks(self.reranker_data["weights"], self.reranker_data["bias"], feats)
+                X_test.append(raw_f)
+                
+            scores = model.predict(np.array(X_test))
             fused = [x for _, x in sorted(zip(scores, fused), key=lambda pair: -pair[0])]
                 
         # 3. Generate

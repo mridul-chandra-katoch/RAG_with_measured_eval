@@ -1,1 +1,4 @@
 pdfminer.six==20231228
+xgboost==2.0.3
+scikit-learn==1.4.1
+pandas==2.2.1
