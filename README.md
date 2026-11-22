@@ -2,7 +2,7 @@
 
 
 
-A local RAG system built on the Python Standard Library. Features a hybrid retrieval engine (BM25 + TF-IDF + RRF), a learned abstention classifier, a learned reranker, and an evaluation harness.
+A local RAG system built on the Python Standard Library. Features a hybrid retrieval engine, a learned abstention classifier, and a rigorous evaluation harness.
 
 
 
@@ -10,25 +10,23 @@ A local RAG system built on the Python Standard Library. Features a hybrid retri
 
 
 
-\- \*\*Hybrid RAG\*\*: Custom TF-IDF and BM25 search engine fused with Reciprocal Rank Fusion (RRF).
+\- \*\*Hybrid RAG\*\*: Custom TF-IDF and BM25 search engines with configurable fusion (RRF or BM25-only).
 
-\- \*\*Learned Abstention\*\*: Uses a from-scratch logistic regression model to decide when to abstain, outperforming hardcoded thresholds on out-of-corpus detection.
+\- \*\*Learned Abstention\*\*: A from-scratch logistic regression model (trained via gradient descent) to decide when to abstain.
 
-\- \*\*Learned Reranker\*\*: A pairwise RankNet model that reranks top-K retrieval results.
-
-\- \*\*Secure Agent Router\*\*: Routes questions to a Calculator (DoS-protected via AST), an SQL Database, or the Document Search engine.
+\- \*\*Secure Agent Router\*\*: Routes questions to a Calculator (DoS-protected via AST), an SQL Database (read-only), or the Document Search engine.
 
 \- \*\*Web UI\*\*: A built-in HTTP server with an XSS-protected browser interface, secure file uploading, and real-time index rebuilding.
 
-\- \*\*CI Pipeline\*\*: Includes comprehensive unit tests run automatically via GitHub Actions.
+\- \*\*CI Pipeline\*\*: 48 unit tests run automatically via GitHub Actions.
 
 
 
-\## 📊 Results
+\## 📊 Results (Honest Baselines)
 
 
 
-All models are trained and evaluated on SQuAD 2.0, split by article (60/15/25). Test metrics are reported with 95% confidence intervals.
+All models are trained and evaluated on SQuAD 2.0, split by article. Test metrics are reported with 95% cluster bootstrap CIs.
 
 
 
@@ -36,15 +34,23 @@ All models are trained and evaluated on SQuAD 2.0, split by article (60/15/25). 
 
 | :--- | :--- | :--- | :--- | :--- |
 
-| \*\*Abstention Classifier\*\* | Threshold rule (f4 >= t) | AUROC | \*\*0.8936\*\* vs 0.8107 | Yes |
+| \*\*Abstention (G2)\*\* | Threshold (f3\_tfidf >= t) | AUROC | \*\*0.9003\*\* vs 0.8107 | Yes `\[0.0625, 0.1150]` |
 
-| \*\*Reranker\*\* | RRF | MRR | 0.7880 vs 0.7460 | Yes |
+| \*\*Reranker (XGBoost)\*\* | BM25-only | MRR | 0.7966 vs \*\*0.8009\*\* | Pending |
 
-| \*\*Reranker\*\* | BM25-only | MRR | 0.7880 vs \*\*0.8009\*\* | \*\*No (BM25 wins)\*\* |
+| \*\*Reranker (RankNet)\*\* | BM25-only | MRR | 0.7985 vs \*\*0.8009\*\* | Pending |
+
+| \*\*Fusion (RRF)\*\* | BM25-only | MRR | 0.7482 vs \*\*0.7854\*\* | Yes `\[-0.0454, -0.0298]` |
 
 
 
-\*Note: The learned reranker improves upon RRF, but it does not beat a pure BM25 baseline on this dataset. We report this honestly.\*
+\*Key Findings:\*
+
+\- \*\*Fusion is disabled by default.\*\* BM25-only significantly outperforms RRF on SQuAD dev.
+
+\- \*\*Reranker is disabled by default.\*\* Both our pure-Python RankNet and an XGBoost baseline failed to beat BM25 (features were all BM25-derived, offering no new signal).
+
+\- \*\*Red Team:\*\* Input/output filters drop the attack success rate from \*\*66.7%\*\* (defense OFF) to \*\*0.0%\*\* (defense ON) across 6 attack classes.
 
 
 
@@ -52,7 +58,7 @@ All models are trained and evaluated on SQuAD 2.0, split by article (60/15/25). 
 
 
 
-\### 1. Clone the repository \& install dependencies
+\### 1. Install
 
 ```bash
 
@@ -60,5 +66,5 @@ git clone https://github.com/mridul-chandra-katoch/RAG\_with\_measured\_eval.git
 
 cd RAG\_with\_measured\_eval
 
-pip install -r requirements.txt
+pip install -e .
 

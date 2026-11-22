@@ -73,7 +73,7 @@ def main():
     train_p.add_argument("--config", default="configs/corpus.yaml")
 
     report_p = sub.add_parser("report")
-    report_p.add_argument("run_id")
+    report_p.add_argument("run_id", nargs="?", default=None)
 
     agent_p = sub.add_parser("agent")
     agent_p.add_argument("question")

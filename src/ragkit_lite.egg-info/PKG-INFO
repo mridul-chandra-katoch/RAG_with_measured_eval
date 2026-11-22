@@ -1,0 +1,7 @@
+Metadata-Version: 2.4
+Name: ragkit-lite
+Version: 0.1.0
+Summary: A local RAG system built on the Python Standard Library
+Requires-Python: >=3.12
+License-File: License
+Dynamic: license-file
