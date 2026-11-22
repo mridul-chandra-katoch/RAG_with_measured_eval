@@ -96,3 +96,8 @@
 - [~] **G1**: Reranker ablation.
   - Results: MRR 0.7966 (XGBoost, external baseline), 0.7985 (RankNet), 0.8009 (BM25). Split: test (SQuAD). CI: pending.
   - Features were all BM25-derived (no new signal). Reranker disabled. Next: G1b, non-BM25 features, dev only.
+- [x] **G2**: Abstention rework (BM25 features + retriever agreement).
+  - Status: Done
+  - Test: `python -m ragkit.learned.train_abstention`
+  - Results: AUROC 0.9003 vs baseline 0.8107 (diff CI [0.0625, 0.1150]). Cache rebuilt with BM25 features.
+  - Open problems: None.
