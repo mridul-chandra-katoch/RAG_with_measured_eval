@@ -79,3 +79,8 @@
   - Status: Done
   - Test: Server runs, `/health`, `/runs`, `/feedback` work. 50 tests pass.
   - Open problems: Note that we used stdlib `http.server` instead of FastAPI per the zero-dependency rule.
+- [x] **F1-F5**: Evaluation spine with metrics, CIs, and claim checking.
+  - Status: Done
+  - Test: `python -m ragkit eval run --questions evals/questions.jsonl`
+  - Results: faithfulness=1.0000, false_accept_rate=1.0000 (due to <100 chunk fallback).
+  - Open problems: Need more documents to trigger learned abstention and document-level splitting.

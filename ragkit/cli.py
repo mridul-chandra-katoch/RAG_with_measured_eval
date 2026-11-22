@@ -150,7 +150,7 @@ def main():
         
     elif args.cmd == "eval":
         if args.eval_cmd == "run":
-            from ragkit.evals import run_benchmark
+            from ragkit.evaluate import run_full_evaluation
             p = build_pipeline(args.config)
             
             qs = []
@@ -159,10 +159,18 @@ def main():
                     if line.strip():
                         qs.append(json.loads(line))
                         
-            result = run_benchmark(qs, p.retriever, k=5)
+            qs = [q for q in qs if q.get("split", "dev") == args.split]
+            
+            run_record, metrics = run_full_evaluation(p, qs, args.split)
             print(f"--- Evaluation Results ({args.split}) ---")
-            for k, v in result.items():
-                print(f"{k}: {v:.4f}" if isinstance(v, float) else f"{k}: {v}")
+            print(f"Run ID: {run_record['run_id']}")
+            for k, v in metrics.items():
+                if isinstance(v, list):
+                    print(f"{k}: [{v[0]:.4f}, {v[1]:.4f}]")
+                elif isinstance(v, float):
+                    print(f"{k}: {v:.4f}")
+                else:
+                    print(f"{k}: {v}")
         else:
             print(f"Eval subcommand '{args.eval_cmd}' not fully implemented yet.")
             

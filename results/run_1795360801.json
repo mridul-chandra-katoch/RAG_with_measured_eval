@@ -1,0 +1,340 @@
+{
+  "run_id": "run_1795360801",
+  "config_name": "dev",
+  "metrics": {
+    "faithfulness": 1.0,
+    "citation_precision": 0.375,
+    "abstention_precision": 0.7,
+    "abstention_recall": 1.0,
+    "false_refusal_rate": 0.0,
+    "false_accept_rate": 1.0,
+    "p50_latency_ms": 3.2504796981811523,
+    "p95_latency_ms": 4.2595744132995605,
+    "faithfulness_ci": [
+      1.0,
+      1.0
+    ]
+  },
+  "per_question": [
+    {
+      "id": "smoke-001",
+      "question": "When does my hostel allotment expire if I don't renew it?",
+      "abstained": false,
+      "answer": "Hargrove Institute of Technology: Hostel and Library Regulations 2026 (fictional document) 1\\.",
+      "faithful": 1.0,
+      "latency_ms": 5.379438400268555
+    },
+    {
+      "id": "smoke-002",
+      "question": "What is the penalty for renewing my room after the deadline?",
+      "abstained": false,
+      "answer": "A red-team suite measures how often prompt injection, poisoned documents and access-control bypasses succeed, before and after each defense.",
+      "faithful": 1.0,
+      "latency_ms": 3.1986236572265625
+    },
+    {
+      "id": "smoke-003",
+      "question": "How long does the hostel take to give back my security deposit?",
+      "abstained": false,
+      "answer": "1.3 A security deposit of Rs 8,000 is collected at first admission and is refundable within 45 days of vacating the room, subject to deductions for damage.",
+      "faithful": 1.0,
+      "latency_ms": 3.1490325927734375
+    },
+    {
+      "id": "smoke-004",
+      "question": "What time do the hostel gates close on a Saturday night?",
+      "abstained": false,
+      "answer": "Hostel Conduct 2.1 Hostel gates close at 10:30 pm on weekdays and 11:30 pm on Fridays and Saturdays.",
+      "faithful": 1.0,
+      "latency_ms": 3.3102035522460938
+    },
+    {
+      "id": "smoke-005",
+      "question": "What happens if I return to the hostel late three times in one semester?",
+      "abstained": false,
+      "answer": "Three late entries in one semester lead to a written warning from the warden.",
+      "faithful": 1.0,
+      "latency_ms": 3.1557083129882812
+    },
+    {
+      "id": "smoke-006",
+      "question": "Can my friends come up to my room to hang out?",
+      "abstained": false,
+      "answer": "Risks and failure modes Risk Why it matters Control Leakage between In\ufb02ates every learned- Split by document; freeze the test split train and test component result Easy synthetic Retrieval scores look better Mandatory human review; questions written questions than reality by other people Judge bias ",
+      "faithful": 1.0,
+      "latency_ms": 3.3812522888183594
+    },
+    {
+      "id": "smoke-007",
+      "question": "My induction cooktop was confiscated. When will I get it back?",
+      "abstained": false,
+      "answer": "Failure recovery: retry with a rewritten query, fall back to another tool, or abstain with an explanation.",
+      "faithful": 1.0,
+      "latency_ms": 4.111766815185547
+    },
+    {
+      "id": "smoke-008",
+      "question": "How much mess rebate do I get per day when I'm away?",
+      "abstained": false,
+      "answer": "3.2 A student who will be absent for seven or more consecutive days may apply for a mess rebate of Rs 120 per day, provided the application reaches the mess committee at least two days before departure.",
+      "faithful": 1.0,
+      "latency_ms": 3.5696029663085938
+    },
+    {
+      "id": "smoke-009",
+      "question": "Can I claim a mess rebate for the days I'm away during exams?",
+      "abstained": false,
+      "answer": "3.2 A student who will be absent for seven or more consecutive days may apply for a mess rebate of Rs 120 per day, provided the application reaches the mess committee at least two days before departure.",
+      "faithful": 1.0,
+      "latency_ms": 3.350496292114258
+    },
+    {
+      "id": "smoke-010",
+      "question": "How many books can a postgraduate student borrow, and for how long?",
+      "abstained": false,
+      "answer": "Postgraduate students may borrow up to six books for 21 days.",
+      "faithful": 1.0,
+      "latency_ms": 3.210306167602539
+    },
+    {
+      "id": "smoke-011",
+      "question": "How much is the fine if I return a library book late?",
+      "abstained": false,
+      "answer": "4.3 The overdue fine is Rs 2 per day per book, capped at the purchase price of the book.",
+      "faithful": 1.0,
+      "latency_ms": 3.017902374267578
+    },
+    {
+      "id": "smoke-012",
+      "question": "For how long can my group keep a study room each day?",
+      "abstained": false,
+      "answer": "5.3 Group study rooms must be booked at the circulation desk and may be held for at most two hours per day per group.",
+      "faithful": 1.0,
+      "latency_ms": 3.011941909790039
+    },
+    {
+      "id": "smoke-013",
+      "question": "Until what time is the reading hall open during exams?",
+      "abstained": false,
+      "answer": "5.2 During the examination fortnight, the reading hall remains open until midnight.",
+      "faithful": 1.0,
+      "latency_ms": 2.933025360107422
+    },
+    {
+      "id": "smoke-014",
+      "question": "How quickly does the Dean's office respond to a complaint?",
+      "abstained": false,
+      "answer": "6.2 The Dean's office acknowledges a complaint within three working days.",
+      "faithful": 1.0,
+      "latency_ms": 3.0841827392578125
+    },
+    {
+      "id": "smoke-015",
+      "question": "Is there a limit on hostel Wi-Fi speed?",
+      "abstained": false,
+      "answer": "Grievances 6.1 Complaints about hostel or library services may be submitted in writing to the Dean of Student Welfare.",
+      "faithful": 1.0,
+      "latency_ms": 3.8475990295410156
+    },
+    {
+      "id": "smoke-016",
+      "question": "What is the fine for smoking inside the hostel?",
+      "abstained": false,
+      "answer": "5.4 Food and open beverages are not permitted inside the reading hall.",
+      "faithful": 1.0,
+      "latency_ms": 4.359006881713867
+    },
+    {
+      "id": "smoke-017",
+      "question": "Am I allowed to keep a pet in my hostel room?",
+      "abstained": false,
+      "answer": "working days and 9:00 am to 5:00 pm on Sundays.",
+      "faithful": 1.0,
+      "latency_ms": 4.001140594482422
+    },
+    {
+      "id": "smoke-018",
+      "question": "How many e-books can I borrow from the digital library at once?",
+      "abstained": false,
+      "answer": "Library Membership 4.1 Undergraduate students may borrow up to four books at a time for 14 days.",
+      "faithful": 1.0,
+      "latency_ms": 4.003047943115234
+    },
+    {
+      "id": "smoke-019",
+      "question": "Is the library open on public holidays?",
+      "abstained": false,
+      "answer": "Library hours are 8am to 10pm on weekdays.",
+      "faithful": 1.0,
+      "latency_ms": 4.254341125488281
+    },
+    {
+      "id": "smoke-020",
+      "question": "How much is the annual hostel room rent?",
+      "abstained": false,
+      "answer": "Hargrove Institute of Technology: Hostel and Library Regulations 2026 (fictional document) 1\\.",
+      "faithful": 1.0,
+      "latency_ms": 3.4723281860351562
+    },
+    {
+      "id": "smoke-021",
+      "question": "For how long is a hostel room allotted at a time?",
+      "abstained": false,
+      "answer": "Hostel Admission 1.1 Hostel rooms are allotted for one academic year at a time.",
+      "faithful": 1.0,
+      "latency_ms": 3.826141357421875
+    },
+    {
+      "id": "smoke-022",
+      "question": "Between which dates do I have to apply to renew my room?",
+      "abstained": false,
+      "answer": "**For a developer.** Three commands take a new folder from nothing to a report: ``` ragkit ingest ./my_folder --config corpus.yaml ragkit eval generate --corpus my_folder ragkit eval run --corpus my_folder --split dev ``` **For a reviewer reading the repo.** A README that opens with the problem, one",
+      "faithful": 1.0,
+      "latency_ms": 2.7103424072265625
+    },
+    {
+      "id": "smoke-023",
+      "question": "How much security deposit do I pay when I first join the hostel?",
+      "abstained": false,
+      "answer": "1.3 A security deposit of Rs 8,000 is collected at first admission and is refundable within 45 days of vacating the room, subject to deductions for damage.",
+      "faithful": 1.0,
+      "latency_ms": 2.992868423461914
+    },
+    {
+      "id": "smoke-024",
+      "question": "What time do the hostel gates close on a Tuesday?",
+      "abstained": false,
+      "answer": "Hostel Conduct 2.1 Hostel gates close at 10:30 pm on weekdays and 11:30 pm on Fridays and Saturdays.",
+      "faithful": 1.0,
+      "latency_ms": 3.3299922943115234
+    },
+    {
+      "id": "smoke-025",
+      "question": "What must I do if I get back after the gates have closed?",
+      "abstained": false,
+      "answer": "``` BUILD TIME (once per corpus, incremental after) folder -> loaders -> parse -> chunk -> embed -> index | | +--> metadata DB <---------+ QUERY TIME (every question) question -> rewrite/decompose -> retrieve (dense + BM25 -> fuse -> rerank, ACL filter) -> generate (cited, can abstain) -> answer ^ |",
+      "faithful": 1.0,
+      "latency_ms": 4.217863082885742
+    },
+    {
+      "id": "smoke-026",
+      "question": "At what hours can visitors use the common room?",
+      "abstained": false,
+      "answer": "2.3 Visitors are permitted in the common room only between 4:00 pm and 7:00 pm.",
+      "faithful": 1.0,
+      "latency_ms": 3.0999183654785156
+    },
+    {
+      "id": "smoke-027",
+      "question": "Can I use an immersion rod to heat water in my room?",
+      "abstained": false,
+      "answer": "2.4 Use of electric heaters, induction cooktops and immersion rods in rooms is prohibited.",
+      "faithful": 1.0,
+      "latency_ms": 3.0670166015625
+    },
+    {
+      "id": "smoke-028",
+      "question": "How much are the monthly mess charges, and when are they billed?",
+      "abstained": false,
+      "answer": "Mess 3.1 Mess charges are Rs 4,200 per month, billed per semester in advance.",
+      "faithful": 1.0,
+      "latency_ms": 3.103971481323242
+    },
+    {
+      "id": "smoke-029",
+      "question": "For how many days do I have to be away to be eligible for a mess rebate?",
+      "abstained": false,
+      "answer": "3.2 A student who will be absent for seven or more consecutive days may apply for a mess rebate of Rs 120 per day, provided the application reaches the mess committee at least two days before departure.",
+      "faithful": 1.0,
+      "latency_ms": 3.5924911499023438
+    },
+    {
+      "id": "smoke-030",
+      "question": "How many books can an undergraduate student borrow at once?",
+      "abstained": false,
+      "answer": "Library Membership 4.1 Undergraduate students may borrow up to four books at a time for 14 days.",
+      "faithful": 1.0,
+      "latency_ms": 3.072023391723633
+    },
+    {
+      "id": "smoke-031",
+      "question": "Can I extend the loan period of a library book?",
+      "abstained": false,
+      "answer": "Hargrove Institute of Technology: Hostel and Library Regulations 2026 (fictional document) 1\\.",
+      "faithful": 1.0,
+      "latency_ms": 3.248929977416992
+    },
+    {
+      "id": "smoke-032",
+      "question": "What do I have to pay if I lose a library book?",
+      "abstained": false,
+      "answer": "Hargrove Institute of Technology: Hostel and Library Regulations 2026 (fictional document) 1\\.",
+      "faithful": 1.0,
+      "latency_ms": 3.988981246948242
+    },
+    {
+      "id": "smoke-033",
+      "question": "What are the reading hall timings on Sundays?",
+      "abstained": false,
+      "answer": "5.2 During the examination fortnight, the reading hall remains open until midnight.",
+      "faithful": 1.0,
+      "latency_ms": 3.9377212524414062
+    },
+    {
+      "id": "smoke-034",
+      "question": "Can I carry a water bottle into the reading hall?",
+      "abstained": false,
+      "answer": "5.2 During the examination fortnight, the reading hall remains open until midnight.",
+      "faithful": 1.0,
+      "latency_ms": 3.2520294189453125
+    },
+    {
+      "id": "smoke-035",
+      "question": "How much does the hostel laundry service cost?",
+      "abstained": false,
+      "answer": "Grievances 6.1 Complaints about hostel or library services may be submitted in writing to the Dean of Student Welfare.",
+      "faithful": 1.0,
+      "latency_ms": 3.0062198638916016
+    },
+    {
+      "id": "smoke-036",
+      "question": "How many books can a faculty member borrow from the library?",
+      "abstained": false,
+      "answer": "Library Membership 4.1 Undergraduate students may borrow up to four books at a time for 14 days.",
+      "faithful": 1.0,
+      "latency_ms": 3.2470226287841797
+    },
+    {
+      "id": "smoke-037",
+      "question": "What are the breakfast timings in the mess?",
+      "abstained": false,
+      "answer": "A reusable retrieval-augmented generation (RAG) toolkit.",
+      "faithful": 1.0,
+      "latency_ms": 2.8502941131591797
+    },
+    {
+      "id": "smoke-038",
+      "question": "Can I get a mess rebate if I leave suddenly because of a medical emergency?",
+      "abstained": false,
+      "answer": "3.2 A student who will be absent for seven or more consecutive days may apply for a mess rebate of Rs 120 per day, provided the application reaches the mess committee at least two days before departure.",
+      "faithful": 1.0,
+      "latency_ms": 3.4334659576416016
+    },
+    {
+      "id": "smoke-039",
+      "question": "Do the hostel gate timings change during the summer vacation?",
+      "abstained": false,
+      "answer": "Hargrove Institute of Technology: Hostel and Library Regulations 2026 (fictional document) 1\\.",
+      "faithful": 1.0,
+      "latency_ms": 3.048419952392578
+    },
+    {
+      "id": "smoke-040",
+      "question": "What is the fine for losing my library membership card?",
+      "abstained": false,
+      "answer": "Library Membership 4.1 Undergraduate students may borrow up to four books at a time for 14 days.",
+      "faithful": 1.0,
+      "latency_ms": 3.2138824462890625
+    }
+  ]
+}
