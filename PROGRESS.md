@@ -62,3 +62,7 @@
   - Test: 46 tests pass.
   - Open problems: None.
   - **What failed**: Duplicate chunk-ID collision when identical text appeared in multiple sections. Fixed by hashing the section name into the chunk ID, and added a permanent regression test (`test_duplicate_chunk_id_regression`).
+- [x] **D1**: Provider interface with Extractive and Ollama implementations.
+  - Status: Done
+  - Test: 46 tests pass.
+  - Open problems: None.

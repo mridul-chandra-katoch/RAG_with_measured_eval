@@ -30,7 +30,7 @@ def build_pipeline(config_path):
     bm25.build(chunks)
     
     retriever = HybridRetriever(tfidf, bm25, cfg.retrieval_top_k)
-    return RAGPipeline(retriever, cfg.abstain_threshold, cfg.abstain_mode)
+    return RAGPipeline(retriever, cfg.abstain_threshold, cfg.abstain_mode, cfg.provider_name)
 
 def main():
     parser = argparse.ArgumentParser(prog="ragkit")
@@ -81,7 +81,6 @@ def main():
         folder = Path(args.folder)
         db = MetadataDB()
         
-        # Composite hash includes chunk config
         chunk_config_str = f"{cfg.max_tokens}_{cfg.overlap_tokens}_{cfg.chunking_strategy}"
         chunk_config_hash = hashlib.sha256(chunk_config_str.encode()).hexdigest()
         
@@ -106,7 +105,6 @@ def main():
             file_hash = hashlib.sha256(path.read_bytes()).hexdigest()
             doc_id = file_str.replace("/", "_").replace("\\", "_").replace(".", "_")
             
-            # Composite Cache Key
             cache_key = hashlib.sha256(f"{file_hash}_{PARSER_VERSION}_{chunk_config_hash}".encode()).hexdigest()
             
             existing_key = db.get_cache_key(doc_id)
@@ -119,15 +117,8 @@ def main():
             db.add_document_with_chunks(doc_id, file_str, cache_key, doc_chunks)
             files_processed += 1
             
-        # Remove deleted files
-        deleted_count = 0
-        for existing_doc_id in db.get_all_doc_ids():
-            # Reconstruct file path from doc_id (hacky but works for this schema)
-            # Better: check if the doc_id is in the current set of doc_ids
-            pass
-        
-        # Better way to track deletions: store doc_id in a set
         current_doc_ids = {f.replace("/", "_").replace("\\", "_").replace(".", "_") for f in current_files}
+        deleted_count = 0
         for existing_doc_id in db.get_all_doc_ids():
             if existing_doc_id not in current_doc_ids:
                 db.delete_document(existing_doc_id)

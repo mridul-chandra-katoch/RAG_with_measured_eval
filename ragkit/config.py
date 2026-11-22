@@ -3,7 +3,6 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 def _parse_yaml_simple(text: str) -> dict:
-    """Fallback YAML parser for simple cases."""
     result = {}
     stack = [result]
     lines = [line for line in text.splitlines() if line.strip() and not line.strip().startswith("#")]
@@ -52,6 +51,7 @@ class CorpusConfig:
     fusion: str = "rrf"
     reranker_enabled: bool = True
     abstain_mode: str = "learned"
+    provider_name: str = "extractive"
     abstain_threshold: float = 0.05
     
     eval_question_set: str = ""
@@ -65,13 +65,11 @@ class CorpusConfig:
             
         text = path.read_text(encoding="utf-8")
         
-        # Try JSON first (which is valid YAML), then fallback to simple YAML
         try:
             data = json.loads(text)
         except json.JSONDecodeError:
             data = _parse_yaml_simple(text)
             
-        # Validate required fields
         if "corpus" not in data or "name" not in data["corpus"]:
             raise ValueError("Config must have corpus.name")
         if "sources" not in data["corpus"] or not data["corpus"]["sources"]:
@@ -102,10 +100,10 @@ class CorpusConfig:
             fusion=retrieval.get("fusion", "rrf"),
             reranker_enabled=retrieval.get("reranker", {}).get("enabled", True),
             abstain_mode=abstain_cfg.get("mode", "learned"),
+            provider_name=generation.get("provider", "extractive"),
             abstain_threshold=float(threshold),
             eval_question_set=eval_sec.get("question_set", ""),
             eval_split_by=eval_sec.get("split_by", "document")
         )
 
-# Alias for backwards compatibility with serve.py and cli.py
 Config = CorpusConfig
