@@ -66,3 +66,7 @@
   - Status: Done
   - Test: 46 tests pass.
   - Open problems: None.
+- [x] **D2**: Deterministic claim check.
+  - Status: Done
+  - Test: `tests/test_claim_check.py` passes (50 tests total).
+  - Open problems: None.
