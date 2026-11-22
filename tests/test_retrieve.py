@@ -18,7 +18,7 @@ class TestRetrieve(unittest.TestCase):
     def test_bm25_only_order(self):
         fused, _ = self.retriever.retrieve("apple")
         self.assertEqual(fused[0][0].chunk_id, "c1")
-        self.assertGreater(fused[0][1], 1.0)
+        self.assertGreater(fused[0][1], 0.5) # BM25 score is ~0.69, RRF would be ~0.03
 
 if __name__ == "__main__":
     unittest.main()
